@@ -5,7 +5,7 @@
  * @brief A baseline three-byte DCC packet\n
  * A DCC packet that consists of one address byte, one data byte, and a checksum made by XORing the data and address bytes.
  */
-struct __attribute__((packed)) DCCPacketBaseline {
+struct DCCPacketBaseline {
     uint8_t address;
     uint8_t data;
     uint8_t checksum;
@@ -23,7 +23,13 @@ enum InstructionType : uint8_t {
     CV_ACCESS                   = 0b111
 };
 
-struct __attribute__((packed)) DCCPacketExtended{
+enum SpeedStepMode : uint8_t {
+    MODE_14 = 0,
+    MODE_28 = 1,
+    MODE_128 = 2
+};
+
+struct DCCPacketExtended{
     uint8_t primaryAddress;
     uint8_t extendedAddress;          // valid only if hasExtendedAddress == true
     bool hasExtendedAddress;

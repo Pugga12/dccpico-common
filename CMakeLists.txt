@@ -4,7 +4,10 @@ project(dccpico-common)
 set(CMAKE_CXX_STANDARD 20)
 
 add_library(dccpico-common STATIC
-        src/DCCProtocol.cpp)
+        include/dccpico-common/dcc_base_formats.hpp
+        src/dcc_locomotive.cpp
+        include/dccpico-common/dcc_locomotive.hpp
+)
 
 target_include_directories(
         dccpico-common PUBLIC include
