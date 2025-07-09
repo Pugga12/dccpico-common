@@ -70,3 +70,29 @@ bool DCCMessageLocoSpeed::to28StepPacket(DCCMessageContainer_t &out ) const {
     out.size = addressBytesWritten + 2;
     return true;
 }
+
+/**
+ * @brief Writes a 128 speed step packet in the extended format\n
+ * Uses the @link ADVANCED_OPERATION(001) extended instruction type
+ * @param out The message container to write the generated packet bytes into.
+ * @return true on success, false on failure (e.g., invalid speed or address).
+ */
+bool DCCMessageLocoSpeed::to128StepPacket(DCCMessageContainer_t &out) const {
+    if (speed > 127) return false;
+    // write address and store amount of bytes written
+    const size_t addressBytesWritten = writeAddress(out.buffer, this->locomotiveAddress);
+    if (addressBytesWritten <= 0) return false;
+    uint8_t dataByte1 = 0b00111111;
+    uint8_t dataByte2 = 0;
+    if (isDirectionForward) dataByte2 |= 0b10000000;
+    dataByte2 |= (this->speed & 0x7F);
+    out.buffer[addressBytesWritten] = dataByte1;
+    out.buffer[addressBytesWritten + 1] = dataByte2;
+    uint8_t checksum = 0;
+    for (size_t i = 0; i < addressBytesWritten + 2; ++i) {
+        checksum ^= out.buffer[i];
+    }
+    out.buffer[addressBytesWritten + 2] = checksum;
+    out.size = addressBytesWritten + 3;
+    return true;
+}
