@@ -17,6 +17,7 @@ static ssize_t writeAddress(uint8_t* buf, uint16_t address) {
 }
 
 namespace DCC::Locomotive {
+    // MessageSpeed
     #ifndef DISABLE_LEGACY_PACKET_TYPES
         /**
          * @brief Writes a baseline, 14 speed step packet
@@ -48,7 +49,6 @@ namespace DCC::Locomotive {
      * @param out The message container to write the generated packet bytes into.
      * @return true on success, false on failure (e.g., invalid speed or address).
      */
-
     bool MessageSpeed::to28StepPacket(DCCMessageContainer_t &out ) const {
         // check for invalid speed
         if (speed > 31) return false;
@@ -96,5 +96,13 @@ namespace DCC::Locomotive {
         out.buffer[addressBytesWritten + 2] = checksum;
         out.size = addressBytesWritten + 3;
         return true;
+    }
+
+    bool MessageFunctionGroup::toMessageContainer(DCCMessageContainer_t &out) const {
+
+    }
+
+    bool MessageFunctionGroupExtended::toMessageContainer(DCCMessageContainer_t &out) const {
+
     }
 }
