@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <sys/types.h>
 #include "types.hpp"
 
 struct DCCMessageLocoSpeed {
@@ -8,6 +7,9 @@ struct DCCMessageLocoSpeed {
     SpeedStepMode speedMode;
     bool isDirectionForward;
     uint8_t speed;
-
-    ssize_t toDCCMessageBytes(uint8_t* buf, size_t bufSize);
+#ifndef DISABLE_LEGACY_PACKET_TYPES
+    bool to14StepPacket(DCCMessageContainer_t& out) const;
+#endif
+    bool to28StepPacket(DCCMessageContainer_t& out) const;
+    bool to128StepPacket(DCCMessageContainer_t& out) const;
 };

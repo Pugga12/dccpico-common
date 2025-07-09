@@ -2,64 +2,71 @@
 // Created by adama on 7/8/25.
 //
 #include "dccpico-common/dcc_locomotive.hpp"
+#include <sys/types.h>
 #include "dccpico-common/types.hpp"
-
-/**
- * @brief Internal method that creates a DCC baseline packet out of speed and direction data
- * @note This is not intended for use with extended addressing or 28 speed step mode.
- * That fancy stuff is covered in the extended format. The fourth bit (headlight) is always cleared as the speed is clamped to 0x0F
- */
-static void to14StepBase(uint8_t* buf, uint8_t address, uint8_t speed, bool isDirectionForward) {
-    buf[0] = address; // set byte 0 to address
-    uint8_t dataByte = 0b01000000;
-    if (isDirectionForward) {
-        dataByte |= 0b01100000;
-    }
-    dataByte |= (speed & 0x0F);
-    buf[1] = dataByte;
-    buf[2] = dataByte ^ address;
-}
 
 static ssize_t writeAddress(uint8_t* buf, uint16_t address) {
     if (address > 127) {
-        const uint8_t high = static_cast<uint8_t>((address >> 8) & 0x3F) | 0xC0;
-        const uint8_t low  = static_cast<uint8_t>(address & 0xFF);
-        buf[0] = high;
-        buf[1] = low;
+        buf[0] = static_cast<uint8_t>((address >> 8) & 0x3F) | 0xC0;
+        buf[1] = static_cast<uint8_t>(address & 0xFF);
         return 2;
-    } else if (address < 128) {
+    } else {
         buf[0] = static_cast<uint8_t>(address);
         return 1;
     }
-    return -1;
 }
 
-static ssize_t to28Step(uint8_t* buf, uint16_t address, uint8_t speed, bool isDirectionForward) {
-    uint8_t currentOffset = writeAddress(buf, address) - 1;
-    if (currentOffset < 0) return -1; // bad address
+#ifndef DISABLE_LEGACY_PACKET_TYPES
+/**
+ * @brief Writes a baseline, 14 speed step packet
+ * @note Intended only for legacy 14-step mode; uses short (7-bit) address.
+ * Modern decoders typically use 28 or 128-step modes with extended addressing.
+ * This functionality can be disabled with a compiler flag
+ * @param out The message container to write the bytes to
+ * @return true on success, false on failure
+ */
+bool DCCMessageLocoSpeed::to14StepPacket(DCCMessageContainer_t &out ) const {
+    if (speed > 15) return false;
+    if  (writeAddress(out.buffer, this->locomotiveAddress) != 1) return false;
+    uint8_t address8 = out.buffer[0];
     uint8_t dataByte = 0b01000000;
-    if (isDirectionForward) dataByte|= 0b01100000;
+    if (isDirectionForward) dataByte |= 0b00100000;
+    dataByte |= (speed & 0x0F);
+    out.buffer[1] = dataByte;
+    out.buffer[2] = dataByte ^ address8;
+    out.size = 3;
+    return true;
 }
+#endif
 
 /**
- * @brief Constructs a baseline or extended DCC message out of a DCCMessageLocoSpeed struct
- *
- * @param buf Pointer to the buffer where the packet data should be placed
- * @param bufSize Size of said buffer
- * @return Returns the number of bytes written or a negative number on error
+ * @brief Writes a 28 speed step packet in the extended format.
+ * @note Assumes CV29 bit 1 is set (decoder configured for 28 speed steps).
+ * Generates a packet where data bit 4 is used as part of the speed value (rather than controlling F0).
+ * Suitable for modern decoders that use extended addressing and support 28-step mode.
+ * @param out The message container to write the generated packet bytes into.
+ * @return true on success, false on failure (e.g., invalid speed or address).
  */
-ssize_t DCCMessageLocoSpeed::toDCCMessageBytes(uint8_t *buf, size_t bufSize) {
-    if (buf == nullptr) {
-        return -1; // null pointer
-    }
 
-    switch (this->speedMode) {
-        case MODE_14:
-            if (bufSize < 3 || this->speed > 15 || this->locomotiveAddress > 127) return -2;
-            to14StepBase(buf, this->locomotiveAddress, this->speed, this->isDirectionForward);
-            return 3;
-        default:
-            return -4;
+bool DCCMessageLocoSpeed::to28StepPacket(DCCMessageContainer_t &out ) const {
+    // check for invalid speed
+    if (speed > 31) return false;
+    // write address and store amount of bytes written
+    const size_t addressBytesWritten = writeAddress(out.buffer, this->locomotiveAddress);
+    if (addressBytesWritten <= 0) return false;
+    uint8_t dataByte = 0b01000000;
+    if (isDirectionForward) dataByte |= 0b00100000;
+    dataByte |= (this->speed & 0x1F);
+    // write data byte to address 1 or 2 depending on the address format
+    out.buffer[addressBytesWritten] = dataByte;
+    // compute checksum byte by xor'ing address and data bytes
+    uint8_t checksum = 0;
+    for (size_t i = 0; i < addressBytesWritten; ++i) {
+        checksum ^= out.buffer[i];
     }
+    checksum ^= dataByte;
+    // write checksum and size into the container
+    out.buffer[addressBytesWritten + 1] = checksum;
+    out.size = addressBytesWritten + 2;
+    return true;
 }
-

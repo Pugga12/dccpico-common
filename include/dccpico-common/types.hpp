@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <sys/types.h>
+#define MAX_RAW_MESSAGE_SIZE 10
 
 /**
  * @brief A baseline three-byte DCC packet\n
@@ -27,6 +29,12 @@ enum SpeedStepMode : uint8_t {
     MODE_14 = 0,
     MODE_28 = 1,
     MODE_128 = 2
+};
+
+/// struct for storing in flight DCC packet data up to a set maximum length
+struct DCCMessageContainer_t {
+    uint8_t buffer[MAX_RAW_MESSAGE_SIZE] = {};
+    size_t size;
 };
 
 struct DCCPacketExtended{
