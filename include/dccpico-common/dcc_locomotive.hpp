@@ -1,10 +1,10 @@
 #pragma once
 #include <cstdint>
 #include <sys/types.h>
-#include "dcc_base_formats.hpp"
+#include "types.hpp"
 
 struct DCCMessageLocoSpeed {
-    uint8_t locomotiveAddress;
+    uint16_t locomotiveAddress;
     SpeedStepMode speedMode;
     bool isDirectionForward;
     uint8_t speed;
