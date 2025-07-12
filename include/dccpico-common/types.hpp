@@ -27,4 +27,21 @@ namespace DCC {
         uint8_t buffer[MAX_RAW_MESSAGE_SIZE] = {};
         size_t size = 0;
     };
+
+    /// @brief struct for storing DCC data that needs to be refreshed by the application periodically
+    struct LocomotiveState_t {
+        uint16_t locomotiveAddress = 0;
+        bool isLongAddress = false;
+        uint8_t speed = 0;
+        bool isDirectionForward = false;
+
+        uint8_t f0_f4 = 0;
+        uint8_t f5_f8 = 0;
+        uint8_t f9_f12 = 0;
+        uint8_t f13_f20 = 0;
+        uint8_t f21_f28 = 0;
+
+        uint32_t lastRefreshTick = 0;
+        bool f13_f28Dirty = false;
+    };
 }

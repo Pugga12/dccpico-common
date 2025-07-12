@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 add_library(dccpico-common STATIC
         include/dccpico-common/types.hpp
         src/dcc_locomotive.cpp
+        src/dcc_baseline.cpp
+        include/dccpico-common/dcc_baseline.hpp
         include/dccpico-common/dcc_locomotive.hpp
 )
 

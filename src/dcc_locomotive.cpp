@@ -3,7 +3,6 @@
 //
 #include "dccpico-common/dcc_locomotive.hpp"
 #include <sys/types.h>
-#include "dccpico-common/types.hpp"
 
 static ssize_t writeAddress(uint8_t* buf, uint16_t address) {
     if (address > 127) {
@@ -74,7 +73,7 @@ namespace DCC::Locomotive {
 
     /**
      * @brief Writes a 128 speed step packet in the extended format\n
-     * Uses the @link ADVANCED_OPERATION(001) extended instruction type
+     * Uses the @link ADVANCED_OPERATION (001) extended instruction type
      * @param out The message container to write the generated packet bytes into.
      * @return true on success, false on failure (e.g., invalid speed or address).
      */
@@ -128,6 +127,6 @@ namespace DCC::Locomotive {
     }
 
     bool MessageFunctionGroupExtended::toMessageContainer(DCCMessageContainer_t &out) const {
-
+        
     }
 }
