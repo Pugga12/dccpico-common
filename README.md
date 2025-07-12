@@ -1,12 +1,13 @@
 # DCCPico Common Library
 DCCPico is a library that provides numerous structs and functions to help work with Digital Command Control,
-a standard developed by the NMRA for controlling model trains and their associated accessories like turnouts.
+a [standard developed by the NMRA](https://www.nmra.org/index-nmra-standards-and-recommended-practices) for controlling model trains and their associated accessories like turnouts.
 This library is a work in progress. I hope to develop it into a library that can be used with the Raspberry Pi Pico and other
 microcontrollers to help my own make open source command station based on a Pi Pico, similar to the DCC++ project
 ## Features
 - Provides structs for working with DCC locomotive decoders in `DCC::Locomotive`
   - `MessageSpeedControl`: A struct that allows you to output speed and direction messages in 14 step, 28 step, and 128 step formats
   - `MessageFunctionGroup` and `MessageFunctionGroupExtended`: Provides a structs to store both types of function group instructions and turn them into DCC packets
+- Programming of Configuration Variables (CVs) in both ops mode and service mode (coming soon)
 - Provides a container for in-flight DCC packet data called `DCCMessageContainer_t`
 ## Installation
 Although intended for use on a microcontroller, DCCPico is provided as a platform-agnostic library that you can

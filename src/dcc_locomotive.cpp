@@ -2,19 +2,8 @@
 // Created by adama on 7/8/25.
 //
 #include "dccpico-common/dcc_locomotive.hpp"
-#include <sys/types.h>
+#include "dccpico-common/dcc_baseline.hpp"
 #include <cstdint>
-
-static ssize_t writeAddress(uint8_t* buf, uint16_t address) {
-    if (address > 127) {
-        buf[0] = static_cast<uint8_t>((address >> 8) & 0x3F) | 0xC0;
-        buf[1] = static_cast<uint8_t>(address & 0xFF);
-        return 2;
-    } else {
-        buf[0] = static_cast<uint8_t>(address);
-        return 1;
-    }
-}
 
 namespace DCC::Locomotive {
     // MessageSpeed

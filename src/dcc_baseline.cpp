@@ -1,5 +1,6 @@
 #include "dccpico-common/dcc_baseline.hpp"
 #include <cstdint>
+#include <sys/types.h>
 
 namespace DCC {
     /**
@@ -56,5 +57,16 @@ namespace DCC {
         packet.buffer[1] = 0;
         packet.buffer[2] = 0xFF;
         packet.size = 3;
+    }
+
+    ssize_t writeAddress(uint8_t* buf, uint16_t address) {
+        if (address > 127) {
+            buf[0] = static_cast<uint8_t>((address >> 8) & 0x3F) | 0xC0;
+            buf[1] = static_cast<uint8_t>(address & 0xFF);
+            return 2;
+        } else {
+            buf[0] = static_cast<uint8_t>(address);
+            return 1;
+        }
     }
 }
