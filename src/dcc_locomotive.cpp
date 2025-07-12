@@ -3,6 +3,7 @@
 //
 #include "dccpico-common/dcc_locomotive.hpp"
 #include <sys/types.h>
+#include <cstdint>
 
 static ssize_t writeAddress(uint8_t* buf, uint16_t address) {
     if (address > 127) {
@@ -127,6 +128,21 @@ namespace DCC::Locomotive {
     }
 
     bool MessageFunctionGroupExtended::toMessageContainer(DCCMessageContainer_t &out) const {
-        
+        const size_t addressBytesWritten = writeAddress(out.buffer, locomotiveAddress);
+        if (addressBytesWritten <= 0) return false;
+        uint8_t dataByte1 = 0b11011110;
+        if (isFunctionF21_28) dataByte1 |= 0x01;
+        // write first data byte
+        out.buffer[addressBytesWritten] = dataByte1;
+        // write 2nd data byte (bitmask)
+        out.buffer[addressBytesWritten + 1] = functionBits;
+        // compute checksum
+        uint8_t checksum = 0;
+        for (size_t i = 0; i < addressBytesWritten + 2; ++i) {
+            checksum ^= out.buffer[i];
+        }
+        out.buffer[addressBytesWritten + 2] = checksum;
+        out.size = addressBytesWritten + 3;
+        return true;
     }
 }

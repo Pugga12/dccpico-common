@@ -47,7 +47,7 @@ namespace DCC::Locomotive {
      * @brief Struct that stores a DCC Feature Expansion instruction with the F13-20 (group 3) or F21-28 (group 4) subinstruction
      *
      * There are only two selectable function groups in this instruction, so access to the 8 aux instructions F21-28 is provided by
-     * setting a boolean field, isFunctionGroup4
+     * setting a boolean field, isFunctionF21_28
      *
      * Functions are activated by setting or clearing bits in the functionBits bitmask
      * @note For F13-21, the command station must periodically send the instruction, or send the instruction at least twice,
@@ -55,7 +55,7 @@ namespace DCC::Locomotive {
      */
     struct MessageFunctionGroupExtended {
         uint16_t locomotiveAddress = 0;
-        bool isFunctionGroup4 = false;
+        bool isFunctionF21_28 = false;
         uint8_t functionBits = 0;
         bool toMessageContainer(DCCMessageContainer_t& out) const;
     };

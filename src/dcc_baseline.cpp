@@ -1,4 +1,5 @@
 #include "dccpico-common/dcc_baseline.hpp"
+#include <cstdint>
 
 namespace DCC {
     /**
