@@ -59,7 +59,7 @@ namespace DCC {
         packet.size = 3;
     }
 
-    ssize_t writeAddress(uint8_t* buf, uint16_t address) {
+    inline ssize_t writeAddress(uint8_t* buf, uint16_t address) {
         if (address > 127) {
             buf[0] = static_cast<uint8_t>((address >> 8) & 0x3F) | 0xC0;
             buf[1] = static_cast<uint8_t>(address & 0xFF);
